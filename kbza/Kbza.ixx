@@ -4,3 +4,4 @@ export import :Utils;
 export import :Address;
 export import :Opcode;
 export import :RegisterId;
+export import :Instruction;

@@ -7,6 +7,7 @@ target_sources(kbza PUBLIC FILE_SET kbza_modules TYPE CXX_MODULES FILES
  "Address.ixx"
  "Opcode.ixx"
  "RegisterId.ixx"
+ "Instruction.ixx"
 )
 
  add_subdirectory(tests)
