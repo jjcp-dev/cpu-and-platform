@@ -25,7 +25,7 @@ export namespace Kbza
     template<std::unsigned_integral T>
     constexpr bool is_power_of_two(T value)
     {
-        return (~value + 1) + value == 0;
+        return (value & (value - 1)) == 0;
     }
 
     /// @brief

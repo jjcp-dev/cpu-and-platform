@@ -2,8 +2,6 @@
 
 import Kbza;
 
-// FIXME: Needs compilation-failure tests!
-
 TEST_CASE("Kbza::Address")
 {
     SECTION("Default constructor")
