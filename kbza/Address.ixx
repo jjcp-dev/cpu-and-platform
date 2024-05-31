@@ -10,10 +10,7 @@ import :Utils;
 export namespace Kbza
 {
 
-    /// @brief 64bit address with guaranteed alignment
-    ///
-    /// Use this class to request for addresses that are guaranteed to
-    /// be aligned to a given alignment.
+    /// A 64bit memory address that is guaranteed to be properly aligned.
     ///
     /// @tparam alignment The address' alignment in bytes (e.g: 1, 2, 4, ...)
     template <int alignment>
@@ -24,12 +21,12 @@ export namespace Kbza
                       "Alignment must be a power of two");
 
     public:
-        /// @brief Construct an address with a value of 0
+        /// Construct a null address (value = 0).
         ///
-        /// NOTE: 0 is always aligned to any valid `alignment`
+        /// An address of 0 is always aligned to any valid `alignment`
         constexpr Address() = default;
 
-        /// @brief Copy constructor
+        /// Copy constructor.
         ///
         /// You can construct a copy from another address as long as the other
         /// address' alignment is greater or equal to the current one.
@@ -51,7 +48,7 @@ export namespace Kbza
             address = other.value();
         }
 
-        /// @brief Copy assignment
+        /// Copy assignment.
         ///
         /// You can copy from another address as long as the other
         /// address' alignment is greater or equal to the current one.
@@ -65,7 +62,9 @@ export namespace Kbza
         ///            // valid.
         ///
         /// @tparam other_alignment The alignment of the `other` address
+        /// 
         /// @param rhs The address to copy from
+        /// 
         /// @return A reference to the current instance
         template <int other_alignment>
         constexpr Address<alignment>& operator=(const Address<other_alignment>& rhs)
@@ -78,8 +77,8 @@ export namespace Kbza
             return *this;
         }
 
-        /// @brief Computes current Address plus `rhs` elements 
-        /// (rhs * alignment)
+        /// Computes current Address plus `rhs` elements 
+        /// (rhs * alignment).
         ///
         /// Example:
         ///   auto x = Kbza::Address<2>::create_aligned(4);
@@ -87,14 +86,15 @@ export namespace Kbza
         ///   (x + (-1)).value() == 2
         ///
         /// @param rhs The number of elements to move the address by
+        /// 
         /// @return A new updated Address aligned to `alignment`
         constexpr auto operator+(int rhs) const -> Address<alignment>
         {
             return Address<alignment>(address + rhs * alignment);
         }
 
-        /// @brief Computes current Address minus `rhs` elements 
-        /// (rhs * alignment)
+        /// Computes current Address minus `rhs` elements 
+        /// (rhs * alignment).
         ///
         /// Example:
         ///   auto x = Kbza::Address<2>::create_aligned(4);
@@ -102,14 +102,17 @@ export namespace Kbza
         ///   (x - 1).value() == 2
         ///
         /// @param rhs The number of elements to move the address by
+        /// 
         /// @return A new updated Address aligned to `alignment`
         constexpr auto operator-(int rhs) const -> Address<alignment>
         {
             return Address<alignment>(address - rhs * alignment);
         }
 
-        /// @brief Add-assignment operator
+        /// Add-assignment operator.
+        /// 
         /// @param rhs The number of elements to move address by
+        /// 
         /// @return Reference to this address
         constexpr auto operator+=(int rhs) -> Address<alignment>&
         {
@@ -117,8 +120,10 @@ export namespace Kbza
             return *this;
         }
 
-        /// @brief Sub-assignment operator
+        /// Sub-assignment operator.
+        /// 
         /// @param rhs The number of elements to move address by
+        /// 
         /// @return Reference to this address
         constexpr auto operator-=(int rhs) -> Address<alignment>&
         {
@@ -126,8 +131,10 @@ export namespace Kbza
             return *this;
         }
 
-        /// @brief Try to create an Address with the given value
+        /// Try to create an Address with the given value.
+        /// 
         /// @param value The address to construct
+        /// 
         /// @return An empty optional if `value` is not aligned to `alignment`
         static constexpr auto create(std::uint64_t value) -> std::optional<Address<alignment>>
         {
@@ -141,20 +148,22 @@ export namespace Kbza
             }
         }
 
-        /// @brief Create an Address with the closest aligned address to value (<= value)
+        /// Create an Address with the closest aligned address to value (<= value).
         /// 
         /// Example:
         ///     auto x = Address<2>::create_aligned(3);
         ///     x.value() == 2;
         /// 
         /// @param value The address to construct
+        /// 
         /// @return A properly aligned Address
         static constexpr auto create_aligned(std::uint64_t value) -> Address<alignment>
         {
             return Address<alignment>(Kbza::align<alignment>(value));
         }
 
-        /// @brief Get internal address value
+        /// Get internal address value.
+        /// 
         /// @return a 64bit address
         constexpr auto value() const
         {
