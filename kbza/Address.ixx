@@ -10,23 +10,23 @@ import :Utils;
 export namespace Kbza
 {
 
-    /// @brief Aligned 64bit address wrapper
+    /// @brief 64bit address with guaranteed alignment
     ///
     /// Use this class to request for addresses that are guaranteed to
-    /// be aligned as expected.
+    /// be aligned to a given alignment.
     ///
-    /// @tparam alignment The alignment in bytes of the address
+    /// @tparam alignment The address' alignment in bytes (e.g: 1, 2, 4, ...)
     template <int alignment>
     class Address
     {
         static_assert(alignment > 0, "Alignment must be greater than 0");
-        static_assert(Kbza::is_power_of_two((unsigned)alignment), "Alignment must be a power of two");
+        static_assert(Kbza::is_power_of_two((unsigned)alignment), 
+                      "Alignment must be a power of two");
 
     public:
         /// @brief Construct an address with a value of 0
         ///
-        /// NOTE: 0 is always properly aligned
-        ///
+        /// NOTE: 0 is always aligned to any valid `alignment`
         constexpr Address() = default;
 
         /// @brief Copy constructor
@@ -34,20 +34,35 @@ export namespace Kbza
         /// You can construct a copy from another address as long as the other
         /// address' alignment is greater or equal to the current one.
         ///
+        /// Example:
+        ///     auto a = Address<4>::create_aligned(1024);
+        ///     auto b = Address<2>(a); // Since a is over-aligned in comparison
+        ///                             // to b, this copy is guaranteed to be 
+        ///                             // valid.
+        ///
         /// @tparam other_alignment The alignment of the `other` address
         /// @param other The address to copy from
         template <int other_alignment>
         explicit constexpr Address(const Address<other_alignment>& other)
         {
-            static_assert(other_alignment >= alignment, "Expected greater or equal alignment for copy-ctor");
+            static_assert(other_alignment >= alignment, 
+                          "Expected greater or equal alignment for copy-ctor");
 
             address = other.value();
         }
 
-        /// @brief Copy constructor
+        /// @brief Copy assignment
         ///
         /// You can copy from another address as long as the other
         /// address' alignment is greater or equal to the current one.
+        ///
+        /// Example:
+        ///     auto a = Address<4>::create_aligned(1024);
+        ///     auto b = Address<2>::create_aligned(8);
+        ///     
+        ///     b = a; // Since a is over-aligned in comparison
+        ///            // to b, this copy is guaranteed to be 
+        ///            // valid.
         ///
         /// @tparam other_alignment The alignment of the `other` address
         /// @param rhs The address to copy from
@@ -55,41 +70,56 @@ export namespace Kbza
         template <int other_alignment>
         constexpr Address<alignment>& operator=(const Address<other_alignment>& rhs)
         {
-            static_assert(other_alignment >= alignment, "Expected greater or equal alignment for copy-assignment");
+            static_assert(other_alignment >= alignment, 
+                          "Expected greater or equal alignment for copy-assignment");
 
             address = rhs.value();
 
             return *this;
         }
 
-        /// @brief
-        /// @param rhs
-        /// @return
+        /// @brief Computes current Address plus `rhs` elements 
+        /// (rhs * alignment)
+        ///
+        /// Example:
+        ///   auto x = Kbza::Address<2>::create_aligned(4);
+        ///   (x + 1).value() == 6
+        ///   (x + (-1)).value() == 2
+        ///
+        /// @param rhs The number of elements to move the address by
+        /// @return A new updated Address aligned to `alignment`
         constexpr auto operator+(int rhs) const -> Address<alignment>
         {
             return Address<alignment>(address + rhs * alignment);
         }
 
-        /// @brief
-        /// @param rhs
-        /// @return
+        /// @brief Computes current Address minus `rhs` elements 
+        /// (rhs * alignment)
+        ///
+        /// Example:
+        ///   auto x = Kbza::Address<2>::create_aligned(4);
+        ///   (x - (-1)).value() == 6
+        ///   (x - 1).value() == 2
+        ///
+        /// @param rhs The number of elements to move the address by
+        /// @return A new updated Address aligned to `alignment`
         constexpr auto operator-(int rhs) const -> Address<alignment>
         {
             return Address<alignment>(address - rhs * alignment);
         }
 
-        /// @brief
-        /// @param rhs
-        /// @return
+        /// @brief Add-assignment operator
+        /// @param rhs The number of elements to move address by
+        /// @return Reference to this address
         constexpr auto operator+=(int rhs) -> Address<alignment>&
         {
             address += (std::int64_t)rhs * alignment;
             return *this;
         }
 
-        /// @brief
-        /// @param rhs
-        /// @return
+        /// @brief Sub-assignment operator
+        /// @param rhs The number of elements to move address by
+        /// @return Reference to this address
         constexpr auto operator-=(int rhs) -> Address<alignment>&
         {
             address -= (std::int64_t)rhs * alignment;
@@ -112,6 +142,11 @@ export namespace Kbza
         }
 
         /// @brief Create an Address with the closest aligned address to value (<= value)
+        /// 
+        /// Example:
+        ///     auto x = Address<2>::create_aligned(3);
+        ///     x.value() == 2;
+        /// 
         /// @param value The address to construct
         /// @return A properly aligned Address
         static constexpr auto create_aligned(std::uint64_t value) -> Address<alignment>
@@ -119,8 +154,8 @@ export namespace Kbza
             return Address<alignment>(Kbza::align<alignment>(value));
         }
 
-        /// @brief
-        /// @return
+        /// @brief Get internal address value
+        /// @return a 64bit address
         constexpr auto value() const
         {
             return address;
