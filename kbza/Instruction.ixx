@@ -10,7 +10,7 @@ import :RegisterId;
 export namespace Kbza
 {
 
-    /// @brief Helper for decoding/encoding an instruction
+    /// Helper for decoding/encoding an instruction
     class Instruction
     {
     public:

@@ -6,11 +6,14 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("os")
-
-include(CTest)
+project ("cpu_and_platform")
 
 add_subdirectory(lib/Catch2)
+
+include(CTest)
+include(Catch)
+include(cmake/BuildFailureTest.cmake)
+
 add_subdirectory(kbza)
 
 add_executable(os "main.cpp")

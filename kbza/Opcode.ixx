@@ -63,6 +63,8 @@ export namespace Kbza
         TEST_R_R     = 0xC300,
         ADD_R_R      = 0xD000,
         SUB_R_R      = 0xD100,
+        ADDC_R_R     = 0xD200,
+        SUBC_R_R     = 0xD300,
 
         // XXX       [ 256 | 0xFF00 - 0xFFFF ]
         // ------------------------------------

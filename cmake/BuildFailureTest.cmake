@@ -24,11 +24,11 @@ function (BUILD_FAILURE_TEST)
             EXCLUDE_FROM_DEFAULT_BUILD TRUE
         )
 
-        add_test(NAME ${ARG_NAME}_${opt}
+        add_test(NAME ${ARG_NAME}.${opt}
                  COMMAND ${CMAKE_COMMAND} --build . --target ${ARG_NAME}_${opt} --config $<CONFIGURATION>
                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
-        set_tests_properties(${ARG_NAME}_${opt} PROPERTIES WILL_FAIL TRUE)
+        set_tests_properties(${ARG_NAME}.${opt} PROPERTIES WILL_FAIL TRUE)
 
     endforeach()
 

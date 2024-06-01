@@ -8,6 +8,10 @@ target_sources(kbza PUBLIC FILE_SET kbza_modules TYPE CXX_MODULES FILES
  "Opcode.ixx"
  "RegisterId.ixx"
  "Instruction.ixx"
+ "MemoryController.ixx"
+ "Status.ixx"
+ "Core.ixx"
+ "Core.cpp"
 )
 
- add_subdirectory(tests)
+add_subdirectory(tests)

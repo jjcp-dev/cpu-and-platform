@@ -23,7 +23,7 @@ int main()
 
     #else
         
-        #error "No build failure tests enabled!"
+       // No build failure tests enabled!
 
     #endif
 
