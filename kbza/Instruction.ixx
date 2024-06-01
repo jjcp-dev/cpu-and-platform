@@ -113,7 +113,7 @@ export namespace Kbza
 
         /// @brief 
         /// @return 
-        constexpr std::uint16_t signed_imm12() const
+        constexpr std::int16_t signed_imm12() const
         {
             const auto imm = imm12();
             std::int16_t extended = (imm & 0x0800)

@@ -61,6 +61,15 @@ export namespace Kbza
             }
         }
 
+        template<std::integral T>
+        void copy(std::uint64_t address, std::span<T> buffer)
+        {
+            if (memory_buffer.size_bytes() - address > buffer.size_bytes())
+            {
+                std::memcpy(memory_buffer.data() + address, buffer.data(), buffer.size_bytes());
+            }
+        }
+
         /// @brief
         /// @return
         std::span<std::uint8_t> span() const

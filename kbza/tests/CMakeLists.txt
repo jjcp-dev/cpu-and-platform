@@ -3,7 +3,8 @@ add_executable(kbza_tests
     "test_instruction.cpp"
     "test_register_id.cpp" 
     "test_core.cpp"
- "test_memory_controller.cpp")
+    "test_memory_controller.cpp"
+)
 
 target_compile_features(kbza_tests PUBLIC cxx_std_20)
 target_link_libraries(kbza_tests PRIVATE Catch2::Catch2WithMain)

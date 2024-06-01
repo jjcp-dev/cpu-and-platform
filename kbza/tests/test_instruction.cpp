@@ -44,16 +44,33 @@ TEST_CASE("Kbza::Instruction")
 
     SECTION("XXX_I12")
     {
-        auto opcode = GENERATE(Kbza::Opcode::CALL_I12, 
-                               Kbza::Opcode::JMP_I12);
+        SECTION("Unsigned")
+        {
+            auto opcode = GENERATE(Kbza::Opcode::CALL_I12, 
+                                   Kbza::Opcode::JMP_I12);
 
-        auto num = GENERATE(range(0, 4096));
+            auto num = GENERATE(range(0, 4096));
 
-        const auto i = Kbza::Instruction().set_opcode(opcode)
-                                          .set_imm12(num);
+            const auto i = Kbza::Instruction().set_opcode(opcode)
+                                              .set_imm12(num);
 
-        REQUIRE(i.opcode() == opcode);
-        REQUIRE(i.imm12() == num);
+            REQUIRE(i.opcode() == opcode);
+            REQUIRE(i.imm12() == num);
+        }
+
+        SECTION("Signed")
+        {
+            auto opcode = GENERATE(Kbza::Opcode::CALL_I12, 
+                                   Kbza::Opcode::JMP_I12);
+
+            auto num = GENERATE(range(-2048, 2047));
+
+            const auto i = Kbza::Instruction().set_opcode(opcode)
+                                              .set_imm12(num);
+
+            REQUIRE(i.opcode() == opcode);
+            REQUIRE(i.signed_imm12() == num);
+        }
     }
 
     SECTION("XXX_R_I4")

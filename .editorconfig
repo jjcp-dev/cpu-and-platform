@@ -18,7 +18,7 @@ indent_size = 4
 
 # Visual C++ Code Style settings
 
-cpp_generate_documentation_comments = doxygen_triple_slash
+# cpp_generate_documentation_comments = xml
 
 # Visual C++ Formatting settings
 

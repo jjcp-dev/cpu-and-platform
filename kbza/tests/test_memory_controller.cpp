@@ -83,4 +83,9 @@ TEST_CASE("Kbza::MemoryController")
         m.write<std::uint64_t>(Kbza::Address<8>::create_aligned(16), 0xABCD'EF01'0203'0405);
         REQUIRE(m.read<std::uint64_t>(Kbza::Address<8>::create_aligned(16)) == 0xABCD'EF01'0203'0405);
     }
+
+    SECTION("Copy")
+    {
+        REQUIRE(false);
+    }
 }

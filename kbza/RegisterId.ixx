@@ -11,6 +11,8 @@ export namespace Kbza
     class RegisterId
     {
     public:
+        struct ProgramCounterId { };
+
         /// @brief
         /// @param id
         explicit constexpr RegisterId(std::uint8_t id)
@@ -33,6 +35,8 @@ export namespace Kbza
         {
             return value;
         }
+
+        static constexpr auto ProgramCounter = ProgramCounterId();
 
     private:
         std::uint8_t value;
