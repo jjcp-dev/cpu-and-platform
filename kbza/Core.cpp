@@ -65,16 +65,51 @@ void Kbza::Core::step()
         pc += 1;
 
         break;
-    case Opcode::CALL_I12: {
+    case Opcode::CALL_I12:
         push((pc + 1).value());
-        auto k = ins.signed_imm12();
-        pc += k;
-    }
-
-        break;
+        // Fallthrough
     case Opcode::JMP_I12:
         pc += ins.signed_imm12();
-
+        break;
+    case Opcode::LSHL0_R_I4:
+        registers[ins.reg1()] <<= 0x00 + ins.imm4();
+        pc += 1;
+        break;
+    case Opcode::LSHL1_R_I4:
+        registers[ins.reg1()] <<= 0x10 + ins.imm4();
+        pc += 1;
+        break;
+    case Opcode::LSHL2_R_I4:
+        registers[ins.reg1()] <<= 0x20 + ins.imm4();
+        pc += 1;
+        break;
+    case Opcode::LSHL3_R_I4:
+        registers[ins.reg1()] <<= 0x30 + ins.imm4();
+        pc += 1;
+        break;
+    case Opcode::LSHR0_R_I4:
+        registers[ins.reg1()] >>= 0x00 + ins.imm4();
+        pc += 1;
+        break;
+    case Opcode::LSHR1_R_I4:
+        registers[ins.reg1()] >>= 0x10 + ins.imm4();
+        pc += 1;
+        break;
+    case Opcode::LSHR2_R_I4:
+        registers[ins.reg1()] >>= 0x20 + ins.imm4();
+        pc += 1;
+        break;
+    case Opcode::LSHR3_R_I4:
+        registers[ins.reg1()] >>= 0x30 + ins.imm4();
+        pc += 1;
+        break;
+    case Opcode::PUSH_R:
+        push(registers[ins.reg1()]);
+        pc += 1;
+        break;
+    case Opcode::POP_R:
+        registers[ins.reg1()] = pop();
+        pc += 1;
         break;
     default:
         std::cout << "EOP: " << (std::uint16_t)ins.opcode() << std::endl;

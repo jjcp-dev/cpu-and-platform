@@ -46,7 +46,7 @@ export namespace Kbza
             }
             else
             {
-                return -1;
+                return 0;
             }
         }
 

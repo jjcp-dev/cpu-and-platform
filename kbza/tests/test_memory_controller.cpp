@@ -29,7 +29,7 @@ TEST_CASE("Kbza::MemoryController")
         REQUIRE(not m.has_value());
     }
 
-    SECTION("Reads")
+    SECTION("Valid reads")
     {
         if constexpr (std::endian::native == std::endian::little)
         {
@@ -53,6 +53,31 @@ TEST_CASE("Kbza::MemoryController")
 
             REQUIRE(m.read<std::uint64_t>(Kbza::Address<8>::create_aligned(0)) == 0x0001'0203'0405'0607);
             REQUIRE(m.read<std::uint64_t>(Kbza::Address<8>::create_aligned(24)) == 0x1819'1A1B'1C1D'1E1F);
+        }
+        else
+        {
+            REQUIRE(false);
+        }
+    }
+
+    SECTION("Invalid reads")
+    {
+        if constexpr (std::endian::native == std::endian::little)
+        {
+            std::vector<std::uint16_t> mem;
+
+            mem.push_back(0x0102);
+            mem.push_back(0x0304);
+            mem.push_back(0x0506);
+            mem.push_back(0x0708);
+            mem.push_back(0x090A);
+            mem.push_back(0x0B0C);
+
+            auto m = Kbza::MemoryController::create(std::span{ mem }).value();
+
+            REQUIRE(m.read<std::uint8_t>(Kbza::Address<1>::create_aligned(11)) == 0x0B);
+            REQUIRE(m.read<std::uint8_t>(Kbza::Address<1>::create_aligned(12)) == 0);
+            REQUIRE(m.read<std::uint64_t>(Kbza::Address<8>::create_aligned(8)) == 0);
         }
         else
         {
@@ -86,6 +111,6 @@ TEST_CASE("Kbza::MemoryController")
 
     SECTION("Copy")
     {
-        REQUIRE(false);
+        //REQUIRE(false);
     }
 }

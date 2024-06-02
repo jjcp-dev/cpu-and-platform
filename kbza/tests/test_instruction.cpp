@@ -78,8 +78,12 @@ TEST_CASE("Kbza::Instruction")
         auto opcode = GENERATE(
             Kbza::Opcode::LSHL0_R_I4,
             Kbza::Opcode::LSHL1_R_I4,
+            Kbza::Opcode::LSHL2_R_I4,
+            Kbza::Opcode::LSHL3_R_I4,
             Kbza::Opcode::LSHR0_R_I4,
-            Kbza::Opcode::LSHR1_R_I4
+            Kbza::Opcode::LSHR1_R_I4,
+            Kbza::Opcode::LSHR2_R_I4,
+            Kbza::Opcode::LSHR3_R_I4
         );
 
         auto reg = GENERATE(range(0, 16));
