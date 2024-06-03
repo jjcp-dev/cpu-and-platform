@@ -53,7 +53,7 @@ export namespace Kbza
         template <std::unsigned_integral T>
         void write(Kbza::Address<alignof(T)> address, T value)
         {
-            if (address.value() < memory_buffer.size_bytes())
+            if (address.value() <= (memory_buffer.size_bytes() - sizeof(T)))
             {
                 auto ptr = reinterpret_cast<T*>(memory_buffer.data() + address.value());
 

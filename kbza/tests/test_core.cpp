@@ -1,5 +1,4 @@
-#include <catch2/catch_test_macros.hpp>
-#include <catch2/generators/catch_generators_all.hpp>
+#include <catch2/catch_all.hpp>
 
 #include <cstdint>
 #include <span>
@@ -258,10 +257,9 @@ TEST_CASE("Kbza::Core")
 
     SECTION("PUSH_R / POP_R")
     {
-        auto reg1 = GENERATE(range(0, 16));
-        auto reg2 = GENERATE(range(0, 16));
-
-        auto numbers = std::vector<std::uint64_t>{ { 
+        auto reg1 = GENERATE(range(0, 15)); // Skip SP
+        auto reg2 = GENERATE(range(0, 15)); // Skip SP
+        auto num = GENERATE(
             0x7A2F'9B8E'3C4D'5A1B,
             0x2E6C'3D9A'5B1F'8F0D,
             0x9D0B'4E7F'6A3C'8E2F,
@@ -272,42 +270,39 @@ TEST_CASE("Kbza::Core")
             0x4E7F'6A3C'8E2F'1A5C,
             0x1A3B'6E9D'2D4C'8E2F,
             0x9E2F'1A5C'8C0E'3B4D 
-        } };
+        );
 
-        for (auto num : numbers)
-        {
-            auto core = Kbza::Core{ mc };
+        std::vector<std::uint16_t> program;
 
-            core.set(Kbza::RegisterId(reg1), num);
-            core.set(Kbza::RegisterId(reg2), 0);
+        program.push_back(
+            Kbza::Instruction().set_opcode(Kbza::Opcode::PUSH_R)
+                               .set_reg1(Kbza::RegisterId(reg1))
+                               .encoded());
 
-            std::vector<std::uint16_t> program;
+        program.push_back(
+            Kbza::Instruction().set_opcode(Kbza::Opcode::POP_R)
+                               .set_reg1(Kbza::RegisterId(reg2))
+                               .encoded());
 
-            program.push_back(
-                Kbza::Instruction().set_opcode(Kbza::Opcode::PUSH_R)
-                                   .set_reg1(Kbza::RegisterId(reg1))
-                                   .encoded());
+        mc.copy(0, std::span{ program });
 
-            program.push_back(
-                Kbza::Instruction().set_opcode(Kbza::Opcode::POP_R)
-                                   .set_reg1(Kbza::RegisterId(reg2))
-                                   .encoded());
+        auto core = Kbza::Core{ mc };
 
-            mc.copy(0, std::span{ program });
+        core.set(Kbza::RegisterId(reg1), num);
+        core.step();
 
-            core.step();
+        REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 2);
 
-            REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 2);
+        auto sp = Kbza::Address<8>::create_aligned(core.get(Kbza::RegisterId(15)));
+        auto top = mc.read<std::uint64_t>(sp);
 
-            auto sp = Kbza::Address<8>::create_aligned(core.get(Kbza::RegisterId(15)));
-            auto top = mc.read<std::uint64_t>(sp);
+        REQUIRE(top == num);
 
-            // REQUIRE(top == num);
+        core.set(Kbza::RegisterId(reg2), 0);
+        core.step();
 
-            core.step();
-
-            REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 4);
-            REQUIRE(core.get(Kbza::RegisterId(reg2)) == num);
-        }
+        REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 4);
+        REQUIRE(core.get(Kbza::RegisterId(reg2)) == num);
+        REQUIRE(core.get(Kbza::RegisterId(15)) == (sp + 1).value());
     }
 }
