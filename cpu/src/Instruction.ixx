@@ -2,12 +2,12 @@ module;
 
 #include <cstdint>
 
-export module Kbza:Instruction;
+export module Cpu:Instruction;
 
 import :Opcode;
 import :RegisterId;
 
-export namespace Kbza
+export namespace Cpu
 {
 
     /// Helper for decoding/encoding an instruction

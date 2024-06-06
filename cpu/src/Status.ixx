@@ -2,9 +2,9 @@ module;
 
 #include <cstdint>
 
-export module Kbza:Status;
+export module Cpu:Status;
 
-export namespace Kbza
+export namespace Cpu
 {
 
     struct Status
@@ -13,6 +13,7 @@ export namespace Kbza
         std::uint64_t overflow : 1;
         std::uint64_t zero : 1;
         std::uint64_t sign : 1;
+        std::uint64_t interrupts : 1;
     };
 
 }

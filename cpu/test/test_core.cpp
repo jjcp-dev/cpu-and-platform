@@ -4,16 +4,22 @@
 #include <span>
 #include <vector>
 
-import Kbza;
+import Cpu;
+import Platform;
+
+using namespace Cpu;
+
+using Platform::MemoryController;
+using Platform::Address;
 
 
-TEST_CASE("Kbza::Core")
+TEST_CASE("Cpu::Core")
 {
     std::vector<std::uint64_t> buffer;
 
     buffer.resize(1024 * 16);
 
-    auto mc = Kbza::MemoryController::create(std::span{ buffer }).value();
+    auto mc = MemoryController::create(std::span{ buffer }).value();
 
     SECTION("MOV_R_I8")
     {
@@ -23,19 +29,19 @@ TEST_CASE("Kbza::Core")
         std::vector<std::uint16_t> program;
 
         program.push_back(
-            Kbza::Instruction().set_opcode(Kbza::Opcode::MOV_R_I8)
-                               .set_reg1(Kbza::RegisterId(reg))
+            Instruction().set_opcode(Opcode::MOV_R_I8)
+                               .set_reg1(RegisterId(reg))
                                .set_imm8(num)
                                .encoded());
 
-        mc.copy(0, std::span{ program });
+        mc.copy(std::span{ program }, 0);
 
-        auto core = Kbza::Core{ mc };
+        auto core = Core{ mc };
 
         core.step();
 
-        REQUIRE(core.get(Kbza::RegisterId(reg)) == num);
-        REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 2);
+        REQUIRE(core.get(RegisterId(reg)) == num);
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 2);
     }
 
     SECTION("MOVS_R_I8")
@@ -49,19 +55,19 @@ TEST_CASE("Kbza::Core")
             std::vector<std::uint16_t> program;
 
             program.push_back(
-                Kbza::Instruction().set_opcode(Kbza::Opcode::MOVS_R_I8)
-                                   .set_reg1(Kbza::RegisterId(reg))
+                Instruction().set_opcode(Opcode::MOVS_R_I8)
+                                   .set_reg1(RegisterId(reg))
                                    .set_imm8(num)
                                    .encoded());
 
-            mc.copy(0, std::span{ program });
+            mc.copy(std::span{ program }, 0);
 
-            auto core = Kbza::Core{ mc };
+            auto core = Core{ mc };
 
             core.step();
 
-            REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 2);
-            REQUIRE(core.get(Kbza::RegisterId(reg)) == num);
+            REQUIRE(core.get(RegisterId::ProgramCounter) == 2);
+            REQUIRE(core.get(RegisterId(reg)) == num);
         }
 
         SECTION("Negative")
@@ -71,19 +77,19 @@ TEST_CASE("Kbza::Core")
             std::vector<std::uint16_t> program;
 
             program.push_back(
-                Kbza::Instruction().set_opcode(Kbza::Opcode::MOVS_R_I8)
-                                   .set_reg1(Kbza::RegisterId(reg))
+                Instruction().set_opcode(Opcode::MOVS_R_I8)
+                                   .set_reg1(RegisterId(reg))
                                    .set_imm8(num)
                                    .encoded());
 
-            mc.copy(0, std::span{ program });
+            mc.copy(std::span{ program }, 0);
 
-            auto core = Kbza::Core{ mc };
+            auto core = Core{ mc };
 
             core.step();
 
-            REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 2);
-            REQUIRE(static_cast<std::int64_t>(core.get(Kbza::RegisterId(reg))) == num);
+            REQUIRE(core.get(RegisterId::ProgramCounter) == 2);
+            REQUIRE(static_cast<std::int64_t>(core.get(RegisterId(reg))) == num);
         }
     }
 
@@ -94,24 +100,24 @@ TEST_CASE("Kbza::Core")
         std::vector<std::uint16_t> program;
 
         program.push_back(
-            Kbza::Instruction().set_opcode(Kbza::Opcode::CALL_I12)
+            Instruction().set_opcode(Opcode::CALL_I12)
                                .set_imm12(delta)
                                .encoded());
 
-        const auto start = Kbza::Address<2>::create_aligned(1024 * 16);
+        const auto start = Address<2>::create_aligned(1024 * 16);
         const auto start_value = start.value();
 
-        mc.copy(start.value(), std::span{ program });
+        mc.copy(std::span{ program }, start.value());
 
-        auto core = Kbza::Core{ mc };
+        auto core = Core{ mc };
 
-        core.set(Kbza::RegisterId::ProgramCounter, start);
+        core.set(RegisterId::ProgramCounter, start);
 
         core.step();
 
-        REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == start_value + delta * 2);
+        REQUIRE(core.get(RegisterId::ProgramCounter) == start_value + delta * 2);
 
-        auto sp = Kbza::Address<8>::create_aligned(core.get(Kbza::RegisterId(15)));
+        auto sp = Address<8>::create_aligned(core.get(RegisterId(15)));
         auto top = mc.read<std::uint64_t>(sp);
 
         REQUIRE(top == (start + 1).value());
@@ -124,25 +130,25 @@ TEST_CASE("Kbza::Core")
         std::vector<std::uint16_t> program;
 
         program.push_back(
-            Kbza::Instruction().set_opcode(Kbza::Opcode::JMP_I12)
+            Instruction().set_opcode(Opcode::JMP_I12)
                                .set_imm12(delta)
                                .encoded());
 
-        const auto start = Kbza::Address<2>::create_aligned(1024 * 16);
+        const auto start = Address<2>::create_aligned(1024 * 16);
         const auto start_value = start.value();
 
-        mc.copy(start.value(), std::span{ program });
+        mc.copy(std::span{ program }, start.value());
 
-        auto core = Kbza::Core{ mc };
+        auto core = Core{ mc };
 
-        core.set(Kbza::RegisterId::ProgramCounter, start);
+        core.set(RegisterId::ProgramCounter, start);
 
-        auto sp = core.get(Kbza::RegisterId(15));
+        auto sp = core.get(RegisterId(15));
 
         core.step();
 
-        REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == start_value + delta * 2);
-        REQUIRE(sp == core.get(Kbza::RegisterId(15)));
+        REQUIRE(core.get(RegisterId::ProgramCounter) == start_value + delta * 2);
+        REQUIRE(sp == core.get(RegisterId(15)));
     }
 
     SECTION("LSHL{0, 1, 2, 3}_R_I4")
@@ -164,40 +170,40 @@ TEST_CASE("Kbza::Core")
 
         std::vector<std::uint16_t> program;
 
-        Kbza::Opcode opcode = Kbza::Opcode::LSHL0_R_I4;
+        Opcode opcode = Opcode::LSHL0_R_I4;
 
         if (shift <= 0x0F)
         {
-            opcode = Kbza::Opcode::LSHL0_R_I4;
+            opcode = Opcode::LSHL0_R_I4;
         }
         else if (shift <= 0x1F)
         {
-            opcode = Kbza::Opcode::LSHL1_R_I4;
+            opcode = Opcode::LSHL1_R_I4;
         }
         else if (shift <= 0x2F)
         {
-            opcode = Kbza::Opcode::LSHL2_R_I4;
+            opcode = Opcode::LSHL2_R_I4;
         }
         else if (shift <= 0x3F)
         {
-            opcode = Kbza::Opcode::LSHL3_R_I4;
+            opcode = Opcode::LSHL3_R_I4;
         }
 
         program.push_back(
-            Kbza::Instruction().set_opcode(opcode)
-                               .set_reg1(Kbza::RegisterId(reg))
+            Instruction().set_opcode(opcode)
+                               .set_reg1(RegisterId(reg))
                                .set_imm4(shift)
                                .encoded());
 
-        mc.copy(0, std::span{ program });
+        mc.copy(std::span{ program }, 0);
 
-        auto core = Kbza::Core{ mc };
+        auto core = Core{ mc };
 
-        core.set(Kbza::RegisterId(reg), num);
+        core.set(RegisterId(reg), num);
         core.step();
 
-        REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 2);
-        REQUIRE(core.get(Kbza::RegisterId(reg)) == static_cast<std::uint64_t>(num) << shift);
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 2);
+        REQUIRE(core.get(RegisterId(reg)) == static_cast<std::uint64_t>(num) << shift);
     }
 
     SECTION("LSHR{0, 1, 2, 3}_R_I4")
@@ -219,40 +225,40 @@ TEST_CASE("Kbza::Core")
 
         std::vector<std::uint16_t> program;
 
-        Kbza::Opcode opcode = Kbza::Opcode::LSHR0_R_I4;
+        Opcode opcode = Opcode::LSHR0_R_I4;
 
         if (shift <= 0x0F)
         {
-            opcode = Kbza::Opcode::LSHR0_R_I4;
+            opcode = Opcode::LSHR0_R_I4;
         }
         else if (shift <= 0x1F)
         {
-            opcode = Kbza::Opcode::LSHR1_R_I4;
+            opcode = Opcode::LSHR1_R_I4;
         }
         else if (shift <= 0x2F)
         {
-            opcode = Kbza::Opcode::LSHR2_R_I4;
+            opcode = Opcode::LSHR2_R_I4;
         }
         else if (shift <= 0x3F)
         {
-            opcode = Kbza::Opcode::LSHR3_R_I4;
+            opcode = Opcode::LSHR3_R_I4;
         }
 
         program.push_back(
-            Kbza::Instruction().set_opcode(opcode)
-                               .set_reg1(Kbza::RegisterId(reg))
+            Instruction().set_opcode(opcode)
+                               .set_reg1(RegisterId(reg))
                                .set_imm4(shift)
                                .encoded());
 
-        mc.copy(0, std::span{ program });
+        mc.copy(std::span{ program }, 0);
 
-        auto core = Kbza::Core{ mc };
+        auto core = Core{ mc };
 
-        core.set(Kbza::RegisterId(reg), num);
+        core.set(RegisterId(reg), num);
         core.step();
 
-        REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 2);
-        REQUIRE(core.get(Kbza::RegisterId(reg)) == static_cast<std::uint64_t>(num) >> shift);
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 2);
+        REQUIRE(core.get(RegisterId(reg)) == static_cast<std::uint64_t>(num) >> shift);
     }
 
     SECTION("PUSH_R / POP_R")
@@ -275,34 +281,34 @@ TEST_CASE("Kbza::Core")
         std::vector<std::uint16_t> program;
 
         program.push_back(
-            Kbza::Instruction().set_opcode(Kbza::Opcode::PUSH_R)
-                               .set_reg1(Kbza::RegisterId(reg1))
+            Instruction().set_opcode(Opcode::PUSH_R)
+                               .set_reg1(RegisterId(reg1))
                                .encoded());
 
         program.push_back(
-            Kbza::Instruction().set_opcode(Kbza::Opcode::POP_R)
-                               .set_reg1(Kbza::RegisterId(reg2))
+            Instruction().set_opcode(Opcode::POP_R)
+                               .set_reg1(RegisterId(reg2))
                                .encoded());
 
-        mc.copy(0, std::span{ program });
+        mc.copy(std::span{ program }, 0);
 
-        auto core = Kbza::Core{ mc };
+        auto core = Core{ mc };
 
-        core.set(Kbza::RegisterId(reg1), num);
+        core.set(RegisterId(reg1), num);
         core.step();
 
-        REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 2);
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 2);
 
-        auto sp = Kbza::Address<8>::create_aligned(core.get(Kbza::RegisterId(15)));
+        auto sp = Address<8>::create_aligned(core.get(RegisterId(15)));
         auto top = mc.read<std::uint64_t>(sp);
 
         REQUIRE(top == num);
 
-        core.set(Kbza::RegisterId(reg2), 0);
+        core.set(RegisterId(reg2), 0);
         core.step();
 
-        REQUIRE(core.get(Kbza::RegisterId::ProgramCounter) == 4);
-        REQUIRE(core.get(Kbza::RegisterId(reg2)) == num);
-        REQUIRE(core.get(Kbza::RegisterId(15)) == (sp + 1).value());
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 4);
+        REQUIRE(core.get(RegisterId(reg2)) == num);
+        REQUIRE(core.get(RegisterId(15)) == (sp + 1).value());
     }
 }

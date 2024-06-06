@@ -2,9 +2,9 @@ module;
 
 #include <cstdint>
 
-export module Kbza:RegisterId;
+export module Cpu:RegisterId;
 
-export namespace Kbza
+export namespace Cpu
 {
 
     /// @brief
@@ -12,6 +12,10 @@ export namespace Kbza
     {
     public:
         struct ProgramCounterId { };
+        struct StatusId { };
+
+        static constexpr auto ProgramCounter = ProgramCounterId();
+        static constexpr auto Status = StatusId();
 
         /// @brief
         /// @param id
@@ -35,8 +39,6 @@ export namespace Kbza
         {
             return value;
         }
-
-        static constexpr auto ProgramCounter = ProgramCounterId();
 
     private:
         std::uint8_t value;

@@ -3,44 +3,41 @@ module;
 #include <cstdint>
 #include <iostream>
 
-module Kbza:Core;
+export module Cpu:Core_k;
+
+import Platform;
 
 import :Core;
-import :Utils;
-import :MemoryController;
 import :Instruction;
 import :Opcode;
 
-Kbza::Core::Core(Kbza::MemoryController& ctrl)
-    : memory_ctrl{ ctrl }
-{
-    reset();
-}
+using namespace Cpu;
+using Platform::Address;
 
-void Kbza::Core::reset()
+void Core::reset()
 {
     for (auto& r : registers)
     {
         r = 0;
     }
 
-    pc = Kbza::Address<2>();
-    status = { 0 };
-    registers[15] = Kbza::Address<8>::create_aligned(memory_ctrl.span().size_bytes()).value();
+    registers[15] = Address<8>::create_aligned(memory_ctrl.span().size_bytes()).value();
+    pc            = Address<2>();
+    status        = { 0 };
 }
 
-void Kbza::Core::push(std::uint64_t value)
+void Core::push(std::uint64_t value)
 {
-    auto sp = Kbza::Address<8>::create_aligned(registers[15]) - 1;
+    auto sp = Address<8>::create_aligned(registers[15]) - 1;
 
     memory_ctrl.write(sp, value);
 
     registers[15] = sp.value();
 }
 
-std::uint64_t Kbza::Core::pop()
+std::uint64_t Core::pop()
 {
-    const auto sp = Kbza::Address<8>::create_aligned(registers[15]);
+    const auto sp = Address<8>::create_aligned(registers[15]);
 
     const auto value = memory_ctrl.read<std::uint64_t>(sp);
 
@@ -49,9 +46,9 @@ std::uint64_t Kbza::Core::pop()
     return value;
 }
 
-void Kbza::Core::step()
+void Core::step()
 {
-    auto ins = Kbza::Instruction{ memory_ctrl.read<std::uint16_t>(pc) };
+    auto ins = Cpu::Instruction{ memory_ctrl.read<std::uint16_t>(pc) };
 
     switch (ins.opcode())
     {
@@ -111,6 +108,22 @@ void Kbza::Core::step()
         registers[ins.reg1()] = pop();
         pc += 1;
         break;
+    case Opcode::CALL_R:
+        push((pc + 1).value());
+        // Fallthrough
+    case Opcode::JMP_R:
+        pc = Address<2>::create_aligned(registers[ins.reg1()]);
+        break;
+    case Opcode::MOV_R_I16:
+        registers[ins.reg1()] = memory_ctrl.read<std::uint16_t>(pc + 1);
+        pc += 2;
+        break;
+    case Opcode::MOV_R_I32: {
+        auto ptr = Address<4>::create_aligned(pc.value()) + 1;
+        registers[ins.reg1()] = memory_ctrl.read<std::uint32_t>(ptr);
+        pc = (ptr + 1);
+        break;
+    }
     default:
         std::cout << "EOP: " << (std::uint16_t)ins.opcode() << std::endl;
     }

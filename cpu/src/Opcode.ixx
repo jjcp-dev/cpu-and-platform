@@ -2,9 +2,9 @@ module;
 
 #include <cstdint>
 
-export module Kbza:Opcode;
+export module Cpu:Opcode;
 
-export namespace Kbza
+export namespace Cpu
 {
 
     /// @brief
@@ -35,8 +35,8 @@ export namespace Kbza
         // -------------------------------------------
         PUSH_R       = 0xA000, // 1010'0000'0000'rrrr
         POP_R        = 0xA010, // 1010'0000'0001'rrrr
-        JMP_R        = 0xA020, // 1010'0000'0010'rrrr
-        CALL_R       = 0xA030, // 1010'0000'0011'rrrr
+        CALL_R       = 0xA020, // 1010'0000'0010'rrrr
+        JMP_R        = 0xA030, // 1010'0000'0011'rrrr
         MOV_R_I16    = 0xA040, // 1010'0000'0100'rrrr
         MOV_R_I32    = 0xA050, // 1010'0000'0101'rrrr
         MOV_R_I64    = 0xA060, // 1010'0000'0110'rrrr
@@ -73,8 +73,14 @@ export namespace Kbza
         // XXX       [ 256 | 0xFF00 - 0xFFFF ]
         // -------------------------------------------
         RET          = 0xFF00, // 1111'1111'0000'0000
-        STI          = 0xFF01, // 1111'1111'0000'0001
-        CLI          = 0xFF02, // 1111'1111'0000'0010
+        STI          = 0xFF01, // 1111'1111'0001'0001
+        CLI          = 0xFF02, // 1111'1111'0010'0010
+        CALL_I16     = 0xFF03, // 1111'1111'0011'0010
+        CALL_I32     = 0xFF04, // 1111'1111'0100'0010
+        // CALL_I64  = 0xFF05, // 1111'1111'0101'0010
+        JMP_I16      = 0xFF06, // 1111'1111'0110'0010
+        JMP_I32      = 0xFF07, // 1111'1111'0111'0010
+        // JMP_I64   = 0xFF08, // 1111'1111'1000'0010
         CPUID        = 0xFFFE, // 1111'1111'1111'1110
         HALT         = 0xFFFF, // 1111'1111'1111'1111
     };

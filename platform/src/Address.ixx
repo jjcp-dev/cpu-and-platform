@@ -3,11 +3,11 @@ module;
 #include <cstdint>
 #include <optional>
 
-export module Kbza:Address;
+export module Platform:Address;
 
-import :Utils;
+import Utils;
 
-export namespace Kbza
+export namespace Platform
 {
 
     /// A 64bit memory address that is guaranteed to be properly aligned.
@@ -17,7 +17,7 @@ export namespace Kbza
     class Address
     {
         static_assert(alignment > 0, "Alignment must be greater than 0");
-        static_assert(Kbza::is_power_of_two((unsigned)alignment), 
+        static_assert(Utils::is_power_of_two((unsigned)alignment), 
                       "Alignment must be a power of two");
 
     public:
@@ -81,7 +81,7 @@ export namespace Kbza
         /// (rhs * alignment).
         ///
         /// Example:
-        ///   auto x = Kbza::Address<2>::create_aligned(4);
+        ///   auto x = Address<2>::create_aligned(4);
         ///   (x + 1).value() == 6
         ///   (x + (-1)).value() == 2
         ///
@@ -97,7 +97,7 @@ export namespace Kbza
         /// (rhs * alignment).
         ///
         /// Example:
-        ///   auto x = Kbza::Address<2>::create_aligned(4);
+        ///   auto x = Address<2>::create_aligned(4);
         ///   (x - (-1)).value() == 6
         ///   (x - 1).value() == 2
         ///
@@ -138,7 +138,7 @@ export namespace Kbza
         /// @return An empty optional if `value` is not aligned to `alignment`
         static constexpr auto create(std::uint64_t value) -> std::optional<Address<alignment>>
         {
-            if (Kbza::is_aligned<alignment>(value))
+            if (Utils::is_aligned<alignment>(value))
             {
                 return Address{ value };
             }
@@ -159,7 +159,7 @@ export namespace Kbza
         /// @return A properly aligned Address
         static constexpr auto create_aligned(std::uint64_t value) -> Address<alignment>
         {
-            return Address<alignment>(Kbza::align<alignment>(value));
+            return Address<alignment>(Utils::align<alignment>(value));
         }
 
         /// Get internal address value.
