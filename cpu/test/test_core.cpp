@@ -315,8 +315,19 @@ TEST_CASE("Cpu::Core")
 
     SECTION("CALL_R")
     {
-        auto reg = GENERATE(range(0, 16));
-        auto delta = GENERATE(range(0, 10));
+        auto reg = GENERATE(range(0, 15));
+        auto address = GENERATE(
+            0x7A2F'9B8E'3C4D'5A1B,
+            0x2E6C'3D9A'5B1F'8F0D,
+            0x9D0B'4E7F'6A3C'8E2F,
+            0x5F8C'1A3B'6E9D'2D4C,
+            0x3B4D'9E2F'1A5C'8C0E,
+            0x8E1B'5A3C'4D9E'2F6C,
+            0x6C3D'8E2F'1B4D'9A5F,
+            0x4E7F'6A3C'8E2F'1A5C,
+            0x1A3B'6E9D'2D4C'8E2F,
+            0x9E2F'1A5C'8C0E'3B4D 
+        );
 
         std::vector<std::uint16_t> program;
 
@@ -325,184 +336,173 @@ TEST_CASE("Cpu::Core")
                          .set_reg1(RegisterId(reg))
                          .encoded());
 
-        const auto start = Address<2>::create_aligned(1024 * 16);
-        const auto start_value = start.value();
-
-        mc.copy(std::span{ program }, start.value());
+        mc.copy(std::span{ program }, 0);
 
         auto core = Core{ mc };
 
-        core.set(RegisterId::ProgramCounter, start);
-        core.set(RegisterId(reg), delta);
+        core.set(RegisterId(reg), address);
 
         core.step();
 
-        REQUIRE(core.get(RegisterId::ProgramCounter) == start_value + delta * 2);
+        REQUIRE(core.get(RegisterId::ProgramCounter) == Utils::align<2>(address));
 
         auto sp = Address<8>::create_aligned(core.get(RegisterId::stack()));
         auto top = mc.read<std::uint64_t>(sp);
 
-        REQUIRE(top == (start + 1).value());
+        REQUIRE(top == 2);
+    }
+
+    SECTION("CALL_R (`call sp`)")
+    {
+        std::vector<std::uint16_t> program;
+
+        program.push_back(
+            Instruction().set_opcode(Opcode::CALL_R)
+                         .set_reg1(RegisterId::stack())
+                         .encoded());
+
+        mc.copy(std::span{ program }, 0);
+
+        auto core = Core{ mc };
+
+        core.set(RegisterId::stack(), 1024 + 8);
+
+        core.step();
+
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 1024);
+
+        auto sp = Address<8>::create_aligned(core.get(RegisterId::stack()));
+        auto top = mc.read<std::uint64_t>(sp);
+
+        REQUIRE(top == 2);
     }
 
     SECTION("JMP_R")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOV_R_I16")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOV_R_I32")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOV_R_I64")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOVS_R_I16")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOVS_R_I32")
     {
-        REQUIRE(false);
     }
 
     SECTION("SWP_R_R")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOV_R_R")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOVS_R_R8")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOVS_R_R16")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOVS_R_R32")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOV_M8_R")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOV_M16_R")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOV_M32_R")
     {
-        REQUIRE(false);
     }
 
     SECTION("MOV_M64_R")
     {
-        REQUIRE(false);
     }
 
     SECTION("AND_R_R")
     {
-        REQUIRE(false);
     }
 
     SECTION("OR_R_R")
     {
-        REQUIRE(false);
     }
 
     SECTION("XOR_R_R")      
     {
-        REQUIRE(false);
     }
 
     SECTION("TEST_R_R")     
     {
-        REQUIRE(false);
     }
 
     SECTION("ADD_R_R")      
     {
-        REQUIRE(false);
     }
 
     SECTION("SUB_R_R")      
     {
-        REQUIRE(false);
     }
 
     SECTION("ADDC_R_R")     
     {
-        REQUIRE(false);
     }
 
     SECTION("SUBC_R_R")     
     {
-        REQUIRE(false);
     }
 
     SECTION("RET")          
     {
-        REQUIRE(false);
     }
 
     SECTION("STI")          
     {
-        REQUIRE(false);
     }
 
     SECTION("CLI")          
     {
-        REQUIRE(false);
     }
 
     SECTION("CALL_I16")     
     {
-        REQUIRE(false);
     }
 
     SECTION("CALL_I32")     
     {
-        REQUIRE(false);
     }
 
     SECTION("JMP_I16")      
     {
-        REQUIRE(false);
     }
 
     SECTION("JMP_I32")      
     {
-        REQUIRE(false);
     }
 
     SECTION("CPUID")        
     {
-        REQUIRE(false);
     }
 
     SECTION("HALT")         
     {
-        REQUIRE(false);
     }
 
 }
