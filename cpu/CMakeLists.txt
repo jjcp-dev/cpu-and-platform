@@ -10,7 +10,7 @@ target_sources(cpu PRIVATE FILE_SET cpu_modules TYPE CXX_MODULES FILES
     "src/Core.ixx"
     "src/Core.cpp"
     "src/InterruptId.ixx" 
- "src/State.ixx")
+)
 
 target_compile_features(cpu PRIVATE cxx_std_20)
 target_link_libraries(cpu PRIVATE utils platform)

@@ -6,11 +6,12 @@
 
 import Cpu;
 import Platform;
+import Utils;
 
 using namespace Cpu;
 
 using Platform::MemoryController;
-using Platform::Address;
+using Utils::Address;
 
 
 TEST_CASE("Cpu::Core")

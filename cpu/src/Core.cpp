@@ -6,6 +6,7 @@ module;
 module Cpu:Core;
 
 import Platform;
+import Utils;
 
 import :Core;
 import :Instruction;
@@ -13,7 +14,7 @@ import :Opcode;
 
 using namespace Cpu;
 
-using Platform::Address;
+using Utils::Address;
 
 void Core::reset()
 {

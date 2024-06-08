@@ -12,11 +12,12 @@ import :Instruction;
 import :Status;
 
 import Platform;
+import Utils;
 
 using namespace std;
 
 using Platform::MemoryController;
-using Platform::Address;
+using Utils::Address;
 
 export namespace Cpu
 {
