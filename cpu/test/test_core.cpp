@@ -379,14 +379,147 @@ TEST_CASE("Cpu::Core")
 
     SECTION("JMP_R")
     {
+        auto reg = GENERATE(range(0, 16));
+        auto address = GENERATE(
+            0x7A2F'9B8E'3C4D'5A1B,
+            0x2E6C'3D9A'5B1F'8F0D,
+            0x9D0B'4E7F'6A3C'8E2F,
+            0x5F8C'1A3B'6E9D'2D4C,
+            0x3B4D'9E2F'1A5C'8C0E,
+            0x8E1B'5A3C'4D9E'2F6C,
+            0x6C3D'8E2F'1B4D'9A5F,
+            0x4E7F'6A3C'8E2F'1A5C,
+            0x1A3B'6E9D'2D4C'8E2F,
+            0x9E2F'1A5C'8C0E'3B4D 
+        );
+
+        std::vector<std::uint16_t> program;
+
+        program.push_back(
+            Instruction().set_opcode(Opcode::JMP_R)
+                         .set_reg1(RegisterId(reg))
+                         .encoded());
+
+        mc.copy(std::span{ program }, 0);
+
+        auto core = Core{ mc };
+
+        core.set(RegisterId(reg), address);
+
+        core.step();
+
+        REQUIRE(core.get(RegisterId::ProgramCounter) == Utils::align<2>(address));
     }
 
     SECTION("MOV_R_I16")
     {
+        auto reg = GENERATE(range(0, 16));
+        auto num = GENERATE(
+            0x3C4D,
+            0x5B1F,
+            0x6A3C,
+            0x6E9D,
+            0x1A5C,
+            0x4D9E,
+            0x1B4D,
+            0x8E2F,
+            0x2D4C,
+            0x8C0E 
+        );
+
+        std::vector<std::uint16_t> program;
+
+        program.push_back(
+            Instruction().set_opcode(Opcode::MOV_R_I16)
+                         .set_reg1(RegisterId(reg))
+                         .encoded());
+
+        program.push_back(num);
+
+        mc.copy(std::span{ program }, 0);
+
+        auto core = Core{ mc };
+
+        core.step();
+
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 4);
+        REQUIRE(core.get(RegisterId(reg)) == num);
     }
 
-    SECTION("MOV_R_I32")
+    SECTION("MOV_R_I32 (4byte-aligned instruction)")
     {
+        auto reg = GENERATE(range(0, 16));
+        auto num = GENERATE(
+            0x3C4D'5A1B,
+            0x5B1F'8F0D,
+            0x6A3C'8E2F,
+            0x6E9D'2D4C,
+            0x1A5C'8C0E,
+            0x4D9E'2F6C,
+            0x1B4D'9A5F,
+            0x8E2F'1A5C,
+            0x2D4C'8E2F,
+            0x8C0E'3B4D 
+        );
+
+        std::vector<std::uint16_t> program;
+
+        program.push_back(
+            Instruction().set_opcode(Opcode::MOV_R_I32)
+                         .set_reg1(RegisterId(reg))
+                         .encoded());
+
+        program.push_back(0);
+
+        program.push_back(num & 0x0000FFFF); 
+        program.push_back(num >> 16); 
+
+        mc.copy(std::span{ program }, 0);
+
+        auto core = Core{ mc };
+
+        core.step();
+
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 8);
+        REQUIRE(core.get(RegisterId(reg)) == (unsigned)num);
+    }
+
+    SECTION("MOV_R_I32 (Non 4byte-aligned instruction)")
+    {
+        auto reg = GENERATE(range(0, 16));
+        auto num = GENERATE(
+            0x3C4D'5A1B,
+            0x5B1F'8F0D,
+            0x6A3C'8E2F,
+            0x6E9D'2D4C,
+            0x1A5C'8C0E,
+            0x4D9E'2F6C,
+            0x1B4D'9A5F,
+            0x8E2F'1A5C,
+            0x2D4C'8E2F,
+            0x8C0E'3B4D 
+        );
+
+        std::vector<std::uint16_t> program;
+
+        program.push_back(
+            Instruction().set_opcode(Opcode::MOV_R_I32)
+                         .set_reg1(RegisterId(reg))
+                         .encoded());
+
+        program.push_back(num & 0x0000FFFF); 
+        program.push_back(num >> 16); 
+
+        mc.copy(std::span{ program }, 2);
+
+        auto core = Core{ mc };
+
+        core.set(RegisterId::ProgramCounter, Address<2>::create_aligned(2));
+
+        core.step();
+
+        REQUIRE(core.get(RegisterId(reg)) == (unsigned)num);
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 8);
     }
 
     SECTION("MOV_R_I64")
