@@ -3,11 +3,12 @@ module;
 #include <cstdint>
 #include <optional>
 
-export module Platform:Address;
+export module Utils:Address;
 
-import Utils;
+import :Numbers;
+import :Alignment;
 
-export namespace Platform
+export namespace Utils
 {
 
     /// A 64bit memory address that is guaranteed to be properly aligned.
@@ -16,7 +17,6 @@ export namespace Platform
     template <int alignment>
     class Address
     {
-        static_assert(alignment > 0, "Alignment must be greater than 0");
         static_assert(Utils::is_power_of_two((unsigned)alignment), 
                       "Alignment must be a power of two");
 

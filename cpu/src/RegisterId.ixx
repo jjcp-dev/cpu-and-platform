@@ -33,6 +33,11 @@ export namespace Cpu
         constexpr bool operator==(const RegisterId&) const = default;
         constexpr bool operator!=(const RegisterId&) const = default;
 
+        static constexpr RegisterId stack()
+        {
+            return RegisterId(15);
+        }
+
         /// @brief
         /// @return
         constexpr auto number() const

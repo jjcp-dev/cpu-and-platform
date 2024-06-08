@@ -1,10 +1,10 @@
 #include <catch2/catch_all.hpp>
 
-import Platform;
+import Utils;
 
-using namespace Platform;
+using Utils::Address;
 
-TEST_CASE("Platform::Address")
+TEST_CASE("Utils::Address")
 {
     SECTION("Default constructor")
     {

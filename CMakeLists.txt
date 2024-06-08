@@ -12,7 +12,7 @@ add_subdirectory(lib/Catch2)
 
 include(CTest)
 include(Catch)
-include(cmake/BuildFailureTest.cmake)
+include(cmake/TestBuildFailure.cmake)
 
 add_subdirectory(utils)
 add_subdirectory(cpu)

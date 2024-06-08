@@ -1,6 +1,6 @@
-import Platform;
+import Utils;
 
-using namespace Platform;
+using namespace Utils;
 
 int main()
 {

@@ -8,9 +8,9 @@ module;
 
 export module Platform:MemoryController;
 
-import :Address;
-
 import Utils;
+
+using Utils::Address;
 
 export namespace Platform
 {

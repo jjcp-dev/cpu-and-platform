@@ -6,8 +6,11 @@
 #include <span>
 
 import Platform;
+import Utils;
 
 using namespace Platform;
+
+using Utils::Address;
 
 TEST_CASE("Platform::MemoryController")
 {

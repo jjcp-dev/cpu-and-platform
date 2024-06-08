@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <iostream>
 
-export module Cpu:Core_k;
+module Cpu:Core;
 
 import Platform;
 
@@ -12,6 +12,7 @@ import :Instruction;
 import :Opcode;
 
 using namespace Cpu;
+
 using Platform::Address;
 
 void Core::reset()
