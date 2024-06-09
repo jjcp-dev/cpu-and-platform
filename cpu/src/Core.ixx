@@ -102,5 +102,8 @@ export namespace Cpu
 
         void push(std::uint64_t value);
         std::uint64_t pop();
+
+        void logical_update_status(std::uint64_t value);
+        void arithmetic_update_status(std::uint64_t a, std::uint64_t b, std::uint64_t result, bool carry);
     };
 }

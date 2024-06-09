@@ -522,8 +522,84 @@ TEST_CASE("Cpu::Core")
         REQUIRE(core.get(RegisterId::ProgramCounter) == 8);
     }
 
-    SECTION("MOV_R_I64")
+    SECTION("MOV_R_I64 (4byte-aligned instruction)")
     {
+        auto reg = GENERATE(range(0, 16));
+        auto num = GENERATE(
+            0x7A2F'9B8E'3C4D'5A1B,
+            0x2E6C'3D9A'5B1F'8F0D,
+            0x9D0B'4E7F'6A3C'8E2F,
+            0x5F8C'1A3B'6E9D'2D4C,
+            0x3B4D'9E2F'1A5C'8C0E,
+            0x8E1B'5A3C'4D9E'2F6C,
+            0x6C3D'8E2F'1B4D'9A5F,
+            0x4E7F'6A3C'8E2F'1A5C,
+            0x1A3B'6E9D'2D4C'8E2F,
+            0x9E2F'1A5C'8C0E'3B4D 
+        );
+
+        std::vector<std::uint16_t> program;
+
+        program.push_back(
+            Instruction().set_opcode(Opcode::MOV_R_I64)
+                         .set_reg1(RegisterId(reg))
+                         .encoded());
+
+        program.push_back(0);
+
+        program.push_back(num >> 0); 
+        program.push_back(num >> 16); 
+        program.push_back(num >> 32); 
+        program.push_back(num >> 48); 
+
+        mc.copy(std::span{ program }, 0);
+
+        auto core = Core{ mc };
+
+        core.step();
+
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 12);
+        REQUIRE(core.get(RegisterId(reg)) == num);
+    }
+
+    SECTION("MOV_R_I64 (Non 4byte-aligned instruction)")
+    {
+        auto reg = GENERATE(range(0, 16));
+        auto num = GENERATE(
+            0x7A2F'9B8E'3C4D'5A1B,
+            0x2E6C'3D9A'5B1F'8F0D,
+            0x9D0B'4E7F'6A3C'8E2F,
+            0x5F8C'1A3B'6E9D'2D4C,
+            0x3B4D'9E2F'1A5C'8C0E,
+            0x8E1B'5A3C'4D9E'2F6C,
+            0x6C3D'8E2F'1B4D'9A5F,
+            0x4E7F'6A3C'8E2F'1A5C,
+            0x1A3B'6E9D'2D4C'8E2F,
+            0x9E2F'1A5C'8C0E'3B4D 
+        );
+
+        std::vector<std::uint16_t> program;
+
+        program.push_back(
+            Instruction().set_opcode(Opcode::MOV_R_I64)
+                         .set_reg1(RegisterId(reg))
+                         .encoded());
+
+        program.push_back(num >> 0); 
+        program.push_back(num >> 16); 
+        program.push_back(num >> 32); 
+        program.push_back(num >> 48); 
+
+        mc.copy(std::span{ program }, 2);
+
+        auto core = Core{ mc };
+
+        core.set(RegisterId::ProgramCounter, Address<2>::create_aligned(2));
+
+        core.step();
+
+        REQUIRE(core.get(RegisterId::ProgramCounter) == 12);
+        REQUIRE(core.get(RegisterId(reg)) == num);
     }
 
     SECTION("MOVS_R_I16")
